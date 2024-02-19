@@ -4,12 +4,12 @@ import { COLOR_EXTENSION_MAP } from '@/constants';
 import { FileType } from '@/typings';
 import { ColumnDef } from '@tanstack/react-table';
 import prettyBytes from 'pretty-bytes';
-import { FileIcon, defaultStyles } from 'react-file-icon'
+import { FileIcon, defaultStyles } from 'react-file-icon';
 
 // This type is used to define the shape of our data.
 export const columns: ColumnDef<FileType>[] = [
   {
-    accessorKey: 'Type',
+    accessorKey: 'type',
     header: 'Type',
     cell: ({ renderValue, ...props }) => {
       const type = renderValue() as string;
@@ -32,10 +32,10 @@ export const columns: ColumnDef<FileType>[] = [
   },
   {
     accessorKey: 'timeStamp',
-    header: 'Data Added',
+    header: 'Your Files',
   },
   {
-    accessorKey: 'Size',
+    accessorKey: 'size',
     header: 'Size',
     cell: ({ renderValue, ...props }) => {
       return <span>{prettyBytes(renderValue() as number)}</span>;
@@ -45,13 +45,15 @@ export const columns: ColumnDef<FileType>[] = [
     accessorKey: 'downloadURL',
     header: 'Link',
     cell: ({ renderValue, ...props }) => {
-      <a
-        href={renderValue() as string}
-        target='-blank'
-        className='underline text-blue-500 hover:text-blue-600'
-      >
-        Download
-      </a>;
+      return (
+        <a
+          href={renderValue() as string}
+          target='_blank'
+          className='underline text-blue-500 hover:text-blue-600 cursor-pointer'
+        >
+          Download
+        </a>
+      );
     },
   },
 ];
