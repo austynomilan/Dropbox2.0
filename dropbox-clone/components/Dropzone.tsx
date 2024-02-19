@@ -1,15 +1,24 @@
 'use client';
 
+import { db, storage } from '@/firebase';
 import { cn } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
+import {
+  addDoc,
+  collection,
+  doc,
+  serverTimestamp,
+  updateDoc,
+} from 'firebase/firestore';
+import { getDownloadURL, ref, uploadBytes } from 'firebase/storage';
 import { useState } from 'react';
 import DropzoneComponent from 'react-dropzone';
 
 function Dropzone() {
   const [loading, setLoading] = useState<boolean>(false);
-  const [isLoaded, isSignedIn, user] = useUser();
+  const {isLoaded, isSignedIn, user} = useUser();
 
- const onDrop = (acceptedFiles: File[]) => {
+  const onDrop = (acceptedFiles: File[]) => {
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
 
@@ -26,21 +35,43 @@ function Dropzone() {
   // Declare UploadPost function
   const UploadPost = async (selectedFile: File) => {
     if (loading) return;
-    if (!user) return   
+    if (!user) return;
     setLoading(true);
 
-    //do some stuffs
+    //addDoc -> user/userID/files
+    try {
+        const docRef = await addDoc(collection(db, 'users', user.id, 'file'), {
+            userId: user.id,
+            fileName: selectedFile.name,
+            fullName: user.fullName,
+            profileImage: user.imageUrl,
+            timestamp: serverTimestamp(),
+            type: selectedFile.type,
+            size: selectedFile.size,
+        });
+    
+        const imageRef = ref(storage, `users/${user.id}/files/${docRef.id}`);
+        uploadBytes(imageRef, selectedFile).then(async () => {
+            const downloadURL = await getDownloadURL(imageRef);
+    
+            await updateDoc(doc(db, 'users', user.id, 'file', docRef.id), {
+                downloadURL: downloadURL
+            });
+    
+            console.log('Upload successful. Download URL:', downloadURL);
+        });
+    } catch (error) {
+        // Handle errors here
+        console.error('Error occurred:', error);
+    }
+    
     setLoading(false);
   };
   //maximum file size 20MB
   const maxSize = 20971520;
 
   return (
-    <DropzoneComponent
-      onDrop={(acceptedFiles) => console.log(acceptedFiles)}
-      minSize={0}
-      maxSize={maxSize}
-    >
+    <DropzoneComponent onDrop={onDrop} minSize={0} maxSize={maxSize}>
       {({
         getRootProps,
         getInputProps,
