@@ -1,11 +1,13 @@
-"use client"
+'use client';
+import { useAppStore } from '@/Store/Store'; 
+import { DeleteModal } from '../DeleteModal'; 
 
 import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
   useReactTable,
-} from "@tanstack/react-table"
+} from '@tanstack/react-table';
 
 import {
   Table,
@@ -14,11 +16,14 @@ import {
   TableHead,
   TableHeader,
   TableRow,
-} from "@/components/ui/table"
+} from '@/components/ui/table';
+import { Button } from '../ui/button';
+import { PencilIcon, TrashIcon } from 'lucide-react';
+import { FileType } from '@/typings';
 
 interface DataTableProps<TData, TValue> {
-  columns: ColumnDef<TData, TValue>[]
-  data: TData[]
+  columns: ColumnDef<TData, TValue>[];
+  data: TData[];
 }
 
 export function DataTable<TData, TValue>({
@@ -29,10 +34,32 @@ export function DataTable<TData, TValue>({
     data,
     columns,
     getCoreRowModel: getCoreRowModel(),
-  })
+  });
+
+const [
+  setIsDeleteModalOpen,
+  setFileId,
+  setFileNmae,
+  setIsRenameModalOpen
+] = useAppStore(state=>[
+  state.setIsDeleteModalOpen, 
+  state.setFileId,
+  state.fileName,
+  state.isRenameModalOpen
+])
+
+const openDeletModal = (fileId: string) =>{
+      setFileId(fileId)
+      setIsOpenDeleteModal(open)
+}
+const openRenameModal = (fileId: string, fileName: string) =>{
+  setFileId(fileId)
+  setFileNmae(fileName)
+  setIsOpenRenameModal(open)
+}
 
   return (
-    <div className="rounded-md border">
+    <div className='rounded-md border'>
       <Table>
         <TableHeader>
           {table.getHeaderGroups().map((headerGroup) => (
@@ -47,7 +74,7 @@ export function DataTable<TData, TValue>({
                           header.getContext()
                         )}
                   </TableHead>
-                )
+                );
               })}
             </TableRow>
           ))}
@@ -57,24 +84,60 @@ export function DataTable<TData, TValue>({
             table.getRowModel().rows.map((row) => (
               <TableRow
                 key={row.id}
-                data-state={row.getIsSelected() && "selected"}
+                data-state={row.getIsSelected() && 'selected'}
               >
+                <DeleteModal />
+
                 {row.getVisibleCells().map((cell) => (
                   <TableCell key={cell.id}>
-                    {flexRender(cell.column.columnDef.cell, cell.getContext())}
+                    {cell.column.id === 'timeStamp' ? (
+                      <div className='flex flex-col'>
+                        <div className='text-sm'>
+                          {(cell.getValue() as Date).toLocaleDateString()}
+                        </div>
+                        <div className='text-xs text-gray-500'>
+                          {(cell.getValue() as Date).toLocaleTimeString()}
+                        </div>
+                      </div>
+                    ) : cell.column.id === 'fileName' ? (
+                      <p
+                        onClick={() => 
+                        openRenameModal(
+                          (row.original as FileType).id
+                          (row.original as FileType).fileName
+                        )
+                        }
+                        className='underline flex items-center text-blue-500 hover:cursor-pointer'
+                      >
+                        {cell.getValue() as string}{' '}
+                        <PencilIcon size={15} className='ml-2' />
+                      </p>
+                    ) : (
+                      flexRender(cell.column.columnDef.cell, cell.getContext())
+                    )}
                   </TableCell>
                 ))}
+                <TableCell key={(row.original as FileType).id}>
+                  <Button
+                    variant={'outline'}
+                    onClick={() => openDeletModal(
+                      (row.original as FileType).id
+                    )}
+                  >
+                    <TrashIcon size={20} />
+                  </Button>
+                </TableCell>
               </TableRow>
             ))
           ) : (
             <TableRow>
-              <TableCell colSpan={columns.length} className="h-24 text-center">
-                No results.
+              <TableCell colSpan={columns.length} className='h-24 text-center'>
+                You have no files.
               </TableCell>
             </TableRow>
           )}
         </TableBody>
       </Table>
     </div>
-  )
+  );
 }

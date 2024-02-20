@@ -26,14 +26,15 @@ export const columns: ColumnDef<FileType>[] = [
       );
     },
   },
-  {
+   {
     accessorKey: 'fileName',
-    header: 'FileName',
+    header: 'Your Files',
   },
   {
     accessorKey: 'timeStamp',
-    header: 'Your Files',
+    header: 'timeStamp',
   },
+ 
   {
     accessorKey: 'size',
     header: 'Size',
