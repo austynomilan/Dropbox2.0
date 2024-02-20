@@ -1,29 +1,29 @@
-import { create } from 'zustand'
+import { create } from 'zustand';
 
 interface AppState {
-    isDeleteModalOpen: boolean;
-    setIsDeketeModalOpen: (open: boolean) => void;
+  isDeleteModalOpen: boolean;
+  setIsDeleteModalOpen: (open: boolean) => void;
 
-    isRenameModalOpen: boolean;
-    setIsRenmaeModalOpen: (open: boolean) => void;
+  isRenameModalOpen: boolean;
+  setIsRenameModalOpen: (open: boolean) => void;
 
-    fileId: String | null;
-    setFileId: (fileId: String) => void;
+  fileId: String | null;
+  setFileId: (fileId: String) => void;
 
-    fileName: String | null;
-    setFileName: (fileName: String) => void;      
+  fileName: String;
+  setFileName: (fileName: String) => void;
 }
 
 export const useAppStore = create<AppState>()((set) => ({
-    fileId: null,
-    setFileId: (fileId:String) => setState((state) => ({fileId})),
+  fileId: null,
+  setFileId: (fileId: String) => set((state) => ({ fileId })),
 
-    fileName: "",
-    setFileName: (fileName:String) => setState((state) => ({fileName})),
+  fileName: '',
+  setFileName: (fileName: String) => set((state) => ({ fileName })),
 
-    isDeleteModalOpen: false,
-    setIsDeletModalOpen: (open) => set((state) => ({isDeleteModalOpen: open})),
+  isDeleteModalOpen: false,
+  setIsDeleteModalOpen: (open) => set((state) => ({ isDeleteModalOpen: open })),
 
-    isRenameModalOpen: false,
-    setIsRenameModalOpen: (open) => set((state) => ({isRenameModalOpen: open}))
-}))
+  isRenameModalOpen: false,
+  setIsRenameModalOpen: (open) => set((state) => ({ isRenameModalOpen: open })),
+}));

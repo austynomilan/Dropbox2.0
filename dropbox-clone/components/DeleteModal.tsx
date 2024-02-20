@@ -12,29 +12,29 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog"
-import useAppStore from '@/Store/Store'
+import { useAppStore } from "@/Store/Store"
 
 export function DeleteModal() {
     const [
+        IsDeleteModalOpen,
         setIsDeleteModalOpen,
-        setFileId,
-        setFileNmae,
-        setIsRenameModalOpen
-      ] = useAppStore(state=>[
-        state.setIsDeleteModalOpen, 
+        fileId,
+        setIsfieldId
+      ] = useAppStore((state)=>[
+        state.isDeleteModalOpen, 
+        state.setIsDeleteModalOpen,
+        state.fileId, 
         state.setFileId,
-        state.fileName,
-        state.isRenameModalOpen
       ])
 
-       async deleFile(){
-
-       }
+      //  async deleFile = ()=>{
+      //   console.log('hello');
+      //  }
   return (
     <Dialog
-    open={setIsDeleteModalOpen}
+    open = {IsDeleteModalOpen}
     onOpenChange={()=>{
-        setIsDeleteModalOpen(isOpen);
+        setIsDeleteModalOpen(false);
     }}
     >
       <DialogContent className="sm:max-w-md">
@@ -47,7 +47,7 @@ export function DeleteModal() {
 
         <div className="flex py-3 space-x-2">
           <Button
-          variant={ghost} 
+          variant={'ghost'} 
           size="sm" 
           className="px-3 flex-1"
           onClick ={()=>setIsDeleteModalOpen(false)}
@@ -58,7 +58,7 @@ export function DeleteModal() {
            type="submit" 
            size="sm" 
            className="px-3 flex-1"
-           onClick={()=>deleFile()}
+           onClick={()=>console.log('pass')}
            >
             <span className="sr-only">Delete</span>
             <span>Delete</span>

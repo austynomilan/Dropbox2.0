@@ -1,6 +1,6 @@
 'use client';
-import { useAppStore } from '@/Store/Store'; 
-import { DeleteModal } from '../DeleteModal'; 
+import { useAppStore } from '@/Store/Store';
+import { DeleteModal } from '../DeleteModal';
 
 import {
   ColumnDef,
@@ -36,27 +36,23 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
   });
 
-const [
-  setIsDeleteModalOpen,
-  setFileId,
-  setFileNmae,
-  setIsRenameModalOpen
-] = useAppStore(state=>[
-  state.setIsDeleteModalOpen, 
-  state.setFileId,
-  state.fileName,
-  state.isRenameModalOpen
-])
+  const [setIsDeleteModalOpen, setFileId, setFileName, setIsRenameModalOpen] =
+    useAppStore((state) => [
+      state.setIsDeleteModalOpen,
+      state.setFileId,
+      state.setFileName,
+      state.setIsRenameModalOpen,
+    ]);
 
-const openDeletModal = (fileId: string) =>{
-      setFileId(fileId)
-      setIsOpenDeleteModal(open)
-}
-const openRenameModal = (fileId: string, fileName: string) =>{
-  setFileId(fileId)
-  setFileNmae(fileName)
-  setIsOpenRenameModal(open)
-}
+  const openDeletModal = (fileId: string) => {
+    setFileId(fileId);
+    setIsDeleteModalOpen(true);
+  };
+  const openRenameModal = (fileId: string, fileName: string) => {
+    setFileId(fileId);
+    setFileName(fileName);
+    setIsRenameModalOpen(true);
+  };
 
   return (
     <div className='rounded-md border'>
@@ -101,12 +97,12 @@ const openRenameModal = (fileId: string, fileName: string) =>{
                       </div>
                     ) : cell.column.id === 'fileName' ? (
                       <p
-                        onClick={() => 
-                        openRenameModal(
-                          (row.original as FileType).id
-                          (row.original as FileType).fileName
-                        )
-                        }
+                        onClick={() => {
+                          openRenameModal(
+                            (row.original as FileType).id,
+                            (row.original as FileType).fileName
+                          );
+                        }}
                         className='underline flex items-center text-blue-500 hover:cursor-pointer'
                       >
                         {cell.getValue() as string}{' '}
@@ -120,9 +116,9 @@ const openRenameModal = (fileId: string, fileName: string) =>{
                 <TableCell key={(row.original as FileType).id}>
                   <Button
                     variant={'outline'}
-                    onClick={() => openDeletModal(
-                      (row.original as FileType).id
-                    )}
+                    onClick={() =>
+                      openDeletModal((row.original as FileType).id)
+                    }
                   >
                     <TrashIcon size={20} />
                   </Button>
