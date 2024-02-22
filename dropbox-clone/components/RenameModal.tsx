@@ -2,6 +2,7 @@
 import { useAppStore } from '@/Store/Store';
 import { useUser } from '@clerk/nextjs';
 import { useState } from 'react';
+import toast, { Toaster } from 'react-hot-toast';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -27,12 +28,16 @@ function RenameModal() {
 
   async function renameFile() {
     if (!user || !fileId) return;
+    const toastId = toast.loading('Renaming...');
+
     await updateDoc(doc(db, `users/${user.id}/file/${fileId}`), {
-        fileName: input,
-      });
-      
-    setInput('')
-    setIsRenameModalOpen(false)
+      fileName: input,
+    });
+    toast.success('Renamed Successfully', {
+      id: toastId,
+    });
+    setInput('');
+    setIsRenameModalOpen(false);
   }
 
   return (
