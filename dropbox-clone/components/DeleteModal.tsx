@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/dialog';
 import { useUser } from '@clerk/nextjs';
 import { deleteObject, ref } from 'firebase/storage';
+import toast, { Toaster } from 'react-hot-toast';
 import { db, storage } from '@/firebase';
 import { deleteDoc, doc } from 'firebase/firestore';
 
@@ -26,19 +27,24 @@ export function DeleteModal() {
 
   async function deleteFile() {
     if (!user || !fileId) return;
+    const toastId = toast.loading('Deleting...');
     const fileRef = ref(storage, `users/${user.id}/files/${fileId}`);
     try {
       deleteObject(fileRef)
         .then(async () => {
           deleteDoc(doc(db, 'users', user.id, 'file', `${fileId}`)).then(() => {
-            console.log('deleted successfully');
+            toast.success('Deleted Successfully', {
+              id: toastId,
+            });
           });
         })
         .finally(() => {
           setIsDeleteModalOpen(false);
         });
     } catch (error) {
-      console.log(error);
+      toast.error(`${error}`, {
+        id: toastId,
+      });
     }
   }
 
