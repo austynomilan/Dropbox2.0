@@ -3,6 +3,7 @@
 import { db, storage } from '@/firebase';
 import { cn } from '@/lib/utils';
 import { useUser } from '@clerk/nextjs';
+import toast, { Toaster } from 'react-hot-toast';
 import {
   addDoc,
   collection,
@@ -16,9 +17,10 @@ import DropzoneComponent from 'react-dropzone';
 
 function Dropzone() {
   const [loading, setLoading] = useState<boolean>(false);
-  const {isLoaded, isSignedIn, user} = useUser();
+  const { user } = useUser();
 
   const onDrop = (acceptedFiles: File[]) => {
+    
     acceptedFiles.forEach((file) => {
       const reader = new FileReader();
 
@@ -36,11 +38,13 @@ function Dropzone() {
   const UploadPost = async (selectedFile: File) => {
     if (loading) return;
     if (!user) return;
+    const toastId = toast.loading('Uploading File...');
     setLoading(true);
 
     //addDoc -> user/userID/files
     try {
         const docRef = await addDoc(collection(db, 'users', user.id, 'file'), {
+          
             userId: user.id,
             fileName: selectedFile.name,
             fullName: user.fullName,
@@ -58,11 +62,15 @@ function Dropzone() {
                 downloadURL: downloadURL
             });
     
-            console.log('Upload successful. Download URL:', downloadURL);
+            toast.success('Uploaded Successfully', {
+              id: toastId,
+            });
         });
     } catch (error) {
         // Handle errors here
-        console.error('Error occurred:', error);
+        toast.error(`${error}`, {
+          id: toastId,
+        });
     }
     
     setLoading(false);
