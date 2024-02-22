@@ -27,7 +27,6 @@ export function DeleteModal() {
   async function deleteFile() {
     if (!user || !fileId) return;
     const fileRef = ref(storage, `users/${user.id}/files/${fileId}`);
-    console.log(fileRef)
     try {
       deleteObject(fileRef)
         .then(async () => {
@@ -35,13 +34,12 @@ export function DeleteModal() {
             console.log('deleted successfully');
           });
         })
-        .catch((error) => {
-          console.log(error);
+        .finally(() => {
+          setIsDeleteModalOpen(false);
         });
     } catch (error) {
       console.log(error);
     }
-    setIsDeleteModalOpen(false);
   }
 
   return (
@@ -74,7 +72,8 @@ export function DeleteModal() {
           <Button
             type='submit'
             size='sm'
-            className='px-3 flex-1 text-black hover:text-white hover:bg-red-600'
+            variant={'destructive'}
+            className='px-3 flex-1'
             onClick={() => deleteFile()}
           >
             <span className='sr-only'>Cancel</span>
