@@ -1,78 +1,87 @@
-'use client'
-
-import { CopyIcon } from "@radix-ui/react-icons"
-
-import { Button } from "@/components/ui/button"
+'use client';
+import { useAppStore } from '@/Store/Store';
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
-  DialogClose,
   DialogContent,
   DialogDescription,
-  DialogFooter,
   DialogHeader,
   DialogTitle,
-} from "@/components/ui/dialog"
-import { useAppStore } from "@/Store/Store"
+} from '@/components/ui/dialog';
+import { useUser } from '@clerk/nextjs';
+import { deleteObject, ref } from 'firebase/storage';
+import { db, storage } from '@/firebase';
+import { deleteDoc, doc } from 'firebase/firestore';
 
 export function DeleteModal() {
-    const [
-        IsDeleteModalOpen,
-        setIsDeleteModalOpen,
-        fileId,
-        setIsfieldId
-      ] = useAppStore((state)=>[
-        state.isDeleteModalOpen, 
-        state.setIsDeleteModalOpen,
-        state.fileId, 
-        state.setFileId,
-      ])
+  const { user } = useUser();
 
-      //  async deleFile = ()=>{
-      //   console.log('hello');
-      //  }
+  const [IsDeleteModalOpen, setIsDeleteModalOpen, fileId, setFileId] =
+    useAppStore((state) => [
+      state.isDeleteModalOpen,
+      state.setIsDeleteModalOpen,
+      state.fileId,
+      state.setFileId,
+    ]);
+
+  async function deleteFile() {
+    if (!user || !fileId) return;
+    const fileRef = ref(storage, `users/${user.id}/files/${fileId}`);
+    console.log(fileRef)
+    try {
+      deleteObject(fileRef)
+        .then(async () => {
+          deleteDoc(doc(db, 'users', user.id, 'file', `${fileId}`)).then(() => {
+            console.log('deleted successfully');
+          });
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } catch (error) {
+      console.log(error);
+    }
+    setIsDeleteModalOpen(false);
+  }
+
   return (
     <Dialog
-    open = {IsDeleteModalOpen}
-    onOpenChange={()=>{
+      open={IsDeleteModalOpen}
+      onOpenChange={() => {
         setIsDeleteModalOpen(false);
-    }}
+      }}
     >
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className='sm:max-w-md'>
         <DialogHeader>
-          <DialogTitle>Are you sure you want to delete?</DialogTitle>
-          <DialogDescription>
-           This action cannot be undone, this will permanently delete your file! 
+          <DialogTitle className='text-center pb-3'>
+            Are you sure you want to delete?
+          </DialogTitle>
+          <DialogDescription className='text-center text-red-500 text-xs font-semibold'>
+            This action cannot be undone, this will permanently delete your
+            file!
           </DialogDescription>
         </DialogHeader>
 
-        <div className="flex py-3 space-x-2">
+        <div className='flex py-3 space-x-2'>
           <Button
-          variant={'ghost'} 
-          size="sm" 
-          className="px-3 flex-1"
-          onClick ={()=>setIsDeleteModalOpen(false)}
+            variant={'ghost'}
+            size='sm'
+            className='px-3 flex-1'
+            onClick={() => setIsDeleteModalOpen(false)}
           >
-
+            Cancel
           </Button>
           <Button
-           type="submit" 
-           size="sm" 
-           className="px-3 flex-1"
-           onClick={()=>console.log('pass')}
-           >
-            <span className="sr-only">Delete</span>
+            type='submit'
+            size='sm'
+            className='px-3 flex-1 text-black hover:text-white hover:bg-red-600'
+            onClick={() => deleteFile()}
+          >
+            <span className='sr-only'>Cancel</span>
             <span>Delete</span>
           </Button>
         </div>
-        <DialogFooter className="sm:justify-start">
-          <DialogClose asChild>
-            <Button type="button" variant="secondary">
-              Close
-            </Button>
-          </DialogClose>
-        </DialogFooter>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
